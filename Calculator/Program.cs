@@ -12,6 +12,7 @@ internal class Program {
 
         Console.WriteLine("--------------");
         Console.WriteLine($"Výsledek: {Calculate(number1, operation, number2).WriteAsString()}\r\n");
+        Console.ReadKey();
     }
 
     public static double Prompt(State state)
