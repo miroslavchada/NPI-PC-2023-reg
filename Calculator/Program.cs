@@ -3,42 +3,20 @@
 internal class Program {
 
     public enum Operation { ADD, SUBTRACT, MULTIPLY, DIVIDE }
-    public enum State { FIRST_NUMBER, OPERATION, SECOND_NUMBER }
+    public enum State { FIRST_NUMBER, SECOND_NUMBER }
 
     static void Main(string[] args) {
+        Console.WriteLine("Jednoduchá kalkulačka\r\n" +
+            "Desetiny se oddělují \",\" nebo \".\"\r\n" +
+            "Zlomek se nechá zadat pomocí \"|\" jako zlomková čára\r\n");
+
         Number number1 = NewNumber(State.FIRST_NUMBER).Simplify();
-        Operation operation = (Operation)Prompt(State.OPERATION);
+        Operation operation = OperationChoose();
         Number number2 = NewNumber(State.SECOND_NUMBER).Simplify();
 
         Console.WriteLine("--------------");
         Console.WriteLine($"Výsledek: {Calculate(number1, operation, number2).WriteAsString()}\r\n");
         Console.ReadKey();
-    }
-
-    public static double Prompt(State state)
-    {
-        switch (state)
-        {
-            case State.OPERATION:
-                Console.Write("Operátor: ");
-                switch (Console.ReadLine())
-                {
-                    case "+":
-                        return (double)Operation.ADD;
-                    case "-":
-                        return (double)Operation.SUBTRACT;
-                    case "*":
-                        return (double)Operation.MULTIPLY;
-                    case "/":
-                        return (double)Operation.DIVIDE;
-                    default:
-                        Console.WriteLine("Chyba vstupu. Platný pouze operátor +, -, *, /.");
-                        return Prompt(state);
-                }
-                
-            default:
-                return 0;
-        }
     }
 
     public static Number NewNumber(State state, string input = default)
@@ -55,8 +33,8 @@ internal class Program {
 
         input = Console.ReadLine();
 
-        int FractionLineCount = input.Count(c => c == '|');
-        switch (FractionLineCount)
+        int fractionLineCount = input.Count(c => c == '|');
+        switch (fractionLineCount)
         {
             case 0:
                 try {
@@ -66,9 +44,9 @@ internal class Program {
                     return NewNumber(state, input);
                 }
             case 1:
-                string[] parts = input.Split("|");
+                string[] parts = input.Replace(',', '.').Split("|");
                 try {
-                    return new Number(double.Parse(parts[0].Replace(',', '.')), double.Parse(parts[1].Replace(',', '.')));
+                    return new Number(double.Parse(parts[0]), double.Parse(parts[1]));
                 } catch (FormatException) {
                     Console.WriteLine("Chyba vstupu. Platná pouze číslice 0-9, desetiny oddělovat čárkou.");
                     return NewNumber(state, input);
@@ -76,6 +54,25 @@ internal class Program {
             default:
                 Console.WriteLine("Chyba vstupu. Povolena max. 1 zlomková čára.");
                 return NewNumber(state, input);
+        }
+    }
+
+    public static Operation OperationChoose()
+    {
+        Console.Write("Operátor: ");
+        switch (Console.ReadLine())
+        {
+            case "+":
+                return Operation.ADD;
+            case "-":
+                return Operation.SUBTRACT;
+            case "*":
+                return Operation.MULTIPLY;
+            case "/":
+                return Operation.DIVIDE;
+            default:
+                Console.WriteLine("Chyba vstupu. Platný pouze operátor +, -, *, /.");
+                return OperationChoose();
         }
     }
 
